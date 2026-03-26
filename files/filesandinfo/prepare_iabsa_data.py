@@ -10,9 +10,7 @@ import re
 import glob
 import json
 
-# ─────────────────────────────────────────────
-# 1. LOAD ALL CSV FILES
-# ─────────────────────────────────────────────
+# load cvs files
 
 def load_all_vendors(folder_path: str) -> pd.DataFrame:
     """Load all CSV files from folder and concatenate."""
@@ -29,9 +27,7 @@ def load_all_vendors(folder_path: str) -> pd.DataFrame:
     return combined
 
 
-# ─────────────────────────────────────────────
-# 2. IDENTIFY BRA SIZES (Business Rule #1)
-# ─────────────────────────────────────────────
+# bra sizes
 
 def classify_single_size(size: str) -> str:
     """
@@ -71,9 +67,7 @@ def extract_underbust(size: str) -> int | None:
     return int(m.group(1)) if m else None
 
 
-# ─────────────────────────────────────────────
-# 3. ASSIGN SIZE GROUP (Business Rule #2)
-# ─────────────────────────────────────────────
+# assing size group
 
 SIZE_GROUP_MAP = {
     30: 'Small', 32: 'Small',
@@ -90,9 +84,7 @@ def get_size_group(size_type: str, underbust: int | None) -> str | None:
     return None
 
 
-# ─────────────────────────────────────────────
-# 4. PARSE SIZES AND EXPLODE ROWS
-# ─────────────────────────────────────────────
+# parse sizes and explode rows
 
 def parse_size_list(raw: str) -> list:
     """Parse total_sizes or available_size column (handles JSON arrays and comma-separated strings)."""
@@ -140,12 +132,10 @@ def explode_sizes(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ─────────────────────────────────────────────
-# 5. CLEAN GENERAL DATA QUALITY ISSUES
-# ─────────────────────────────────────────────
+# general clean and data quality
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    # Standardize column names
+    # Standarize column names
     df.columns = df.columns.str.strip().str.lower()
 
     # Drop exact duplicates
@@ -175,9 +165,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ─────────────────────────────────────────────
-# 6. BUILD FINAL FACT TABLE
-# ─────────────────────────────────────────────
+# build fact table
 
 def build_fact_table(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -204,10 +192,9 @@ def build_fact_table(df: pd.DataFrame) -> pd.DataFrame:
     return bras
 
 
-# ─────────────────────────────────────────────
 # 7. BUILD VENDOR × SIZE GROUP SUMMARY
-#    (for warnings/sanctions visualization)
-# ─────────────────────────────────────────────
+# (for warnings/sanctions visualization)
+
 
 def build_vendor_summary(fact: pd.DataFrame) -> pd.DataFrame:
     """
@@ -248,9 +235,7 @@ def build_vendor_summary(fact: pd.DataFrame) -> pd.DataFrame:
     return summary
 
 
-# ─────────────────────────────────────────────
-# 8. MAIN
-# ─────────────────────────────────────────────
+# main
 
 if __name__ == "__main__":
     # ── Change this path to your dataset folder ──
